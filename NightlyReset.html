@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://w3.org' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='%23121722' stroke='%235F75FF' stroke-width='4'/><circle cx='50' cy='50' r='25' fill='none' stroke='%23E0A926' stroke-width='2' stroke-dasharray='4'/></svg>">
+    <title>Nightly Soul Audit</title>
+    <style>
+        :root {
+            --bg-main: #0B0E14;
+            --bg-card: #121722;
+            --text-primary: #FFFFFF;
+            --text-secondary: #8E9AA8;
+            --color-p1: #5F75FF; /* Stillness Visual Indigo */
+            --color-p2: #E0A926; /* Audit Amber */
+            --color-p3: #10B981; /* Grace Emerald */
+            --border: #1F2736;
+            --ring-track: rgba(31, 39, 54, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .app-window {
+            width: 100%;
+            max-width: 900px;
+            background: radial-gradient(rgb(76 76 150 / 30%), rgb(52 52 121 / 10%), rgb(0 0 0 / 80%));
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Top High-Performance Telemetry Dashboard Row */
+        .telemetry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .telemetry-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .telemetry-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            font-weight: 500;
+            text-align: right;
+        }
+
+        .telemetry-value {
+            font-size: 1.15rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        .telemetry-value.phase-name {
+            color: var(--color-p1);
+            transition: color 0.4s ease;
+        }
+
+        /* Central Circle and Visual Layout Engine */
+        .workspace {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 20px 0;
+        }
+
+        /* SVG Telemetry Ring Controller */
+        .circle-container {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .svg-ring-layer {
+            transform: rotate(-90deg);
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .ring-track {
+            fill: none;
+            stroke: var(--ring-track);
+            stroke-width: 4;
+        }
+
+        .circle-container:hover {
+            cursor: pointer;
+            background: radial-gradient(circle, rgba(155, 163, 250, 0.10) 0%, rgba(255, 255, 255, 0) 70%);
+        }
+
+        .ring-progress {
+            fill: none;
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-dasharray: 879.64; /* 2 * PI * r (r=140) */
+            stroke-dashoffset: 879.64; 
+            transition: stroke-dashoffset 1s linear, stroke 0.4s ease;
+        }
+
+        /* Central Core Numerical Counters */
+        .circle-core-metrics {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .main-timer {
+            font-size: 4rem;
+            font-weight: 700;
+            font-family: monospace;
+            letter-spacing: -0.04em;
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+
+        .percentage-completed {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+
+        /* Prompt Text Placement */
+        .guidance-box {
+            text-align: center;
+            max-width: 600px;
+            min-height: 54px;
+            font-size: 1.1rem;
+            line-height: 1.5;
+            color: var(--text-primary);
+            opacity: 0.95;
+            margin-bottom: 20px;
+            transition: opacity 0.3s;
+        }
+
+        /* Control Inputs (Action Button Overlay) */
+        .controls-layer {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .btn-trigger {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-trigger:hover {
+            background: var(--text-primary);
+            color: var(--bg-main);
+            border-color: var(--text-primary);
+            transform: scale(1.05);
+        }
+
+        .btn-trigger svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+            transition: transform 0.1s;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-window">
+    
+
+    <!-- Top High-Performance Telemetry Bar -->
+    <div class="telemetry-header">
+        <div class="telemetry-block" style="align-items: flex-start;">
+            <div class="telemetry-label">Total Time</div>
+            <div class="telemetry-value" id="total-session-time">10:00</div>
+        </div>
+        <div class="telemetry-block">
+            <div class="telemetry-label">Current Phase</div>
+            <div class="telemetry-value phase-name" id="phase-label">Stillness</div>
+        </div>
+        <div class="telemetry-block" style="align-items: flex-end;">
+            <div class="telemetry-label">Phase Remaining</div>
+            <div class="telemetry-value" id="phase-max-time">2:00</div>
+        </div>
+    </div>
+
+    <!-- Central Workspace View -->
+    <div class="workspace">
+        <!-- UPDATE THIS LINE TO INCLUDE THE ONCLICK TRIGGER AND ACCESSIBILITY TITLE -->
+        <div class="circle-container" onclick="toggleAuditEngine()" title="Toggle Session" style="cursor: pointer;">
+            <!-- SVG Progress Circle Canvas -->
+            <svg class="svg-ring-layer" width="320" height="320" viewBox="0 0 320 320">
+                <circle class="ring-track" cx="160" cy="160" r="140" />
+                <circle class="ring-progress" id="telemetry-ring" cx="160" cy="160" r="140" stroke="var(--color-p1)" />
+            </svg>
+            
+            <!-- Core Core Numerical Telemetry -->
+            <div class="circle-core-metrics">
+                <div class="main-timer" id="main-countdown">2:00</div>
+                <div class="percentage-completed" id="percent-display">0% through</div>
+            </div>
+        </div>
+
+        <!-- Dynamic Context Guidance -->
+        <div class="guidance-box" id="guidance-text">
+            Ground yourself. Focus purely on breath and quiet clarity.
+        </div>
+    </div>
+</div>
+
+<script>
+    // System definitions mapped to your precise timeline rules
+    const phases = [
+        {
+            name: "Stillness",
+            prompt: "Ground yourself. Focus purely on breath and quiet clarity.",
+            duration: 120, // 2 minutes
+            color: "var(--color-p1)"
+        },
+        {
+            name: "Behavior Audit",
+            prompt: "Audit your day clearly. Interrogate your underlying beliefs and find where your will practiced heartless compliance or hidden resentment.",
+            duration: 180, // 3 minutes
+            color: "var(--color-p2)"
+        },
+        {
+            name: "The Grace Loop",
+            prompt: "Turn data into structured prayer. Radically own micro-failures, yield your desires, and request Christ's enabling power to alter your nature.",
+            duration: 300, // 5 minutes
+            color: "var(--color-p3)"
+        }
+    ];
+
+    let currentPhaseIndex = 0;
+    let timeRemaining = phases[currentPhaseIndex].duration;
+    let overallSessionTime = 600; // 10 minutes total
+    let timerInterval = null;
+    let isRunning = false;
+
+    const RING_CIRCUMFERENCE = 879.64; // 2 * PI * 140
+
+    function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+        const secs = (seconds % 60).toString().padStart(2, '0');
+        return `${mins}:${secs}`;
+    }
+
+    function updateUserInterface() {
+        const activePhase = phases[currentPhaseIndex];
+        
+        // Update Text & Color Values
+        document.getElementById("phase-label").innerText = activePhase.name;
+        document.getElementById("phase-label").style.color = activePhase.color;
+        document.getElementById("guidance-text").innerText = activePhase.prompt;
+        
+        // Update Time Displays
+        document.getElementById("main-countdown").innerText = formatTime(timeRemaining);
+        document.getElementById("phase-max-time").innerText = formatTime(phases[currentPhaseIndex].duration);
+        document.getElementById("total-session-time").innerText = formatTime(overallSessionTime);
+
+        // Calculate Percentages and Circle Progress Ring Displacement
+        const phaseTotal = activePhase.duration;
+const progressPercent = ((phaseTotal - timeRemaining) / phaseTotal) * 100;
+document.getElementById("percent-display").innerText = Math.floor(progressPercent) + "% through";
+    const ring = document.getElementById("telemetry-ring");
+    ring.style.stroke = activePhase.color;
+    const offset = RING_CIRCUMFERENCE - (progressPercent / 100) * RING_CIRCUMFERENCE;
+    ring.style.strokeDashoffset = offset;
+}
+
+function toggleAuditEngine() {
+if (isRunning) {
+clearInterval(timerInterval);
+isRunning = false;
+updateUserInterface();
+} else {
+isRunning = true;
+updateUserInterface();
+timerInterval = setInterval(() => {
+if (timeRemaining > 0) {
+timeRemaining--;
+if (overallSessionTime > 0) overallSessionTime--;
+updateUserInterface();
+} else {
+// Step Cascade Logic
+if (currentPhaseIndex < phases.length - 1) {
+currentPhaseIndex++;
+timeRemaining = phases[currentPhaseIndex].duration;
+updateUserInterface();
+} else {
+// Termination Matrix
+clearInterval(timerInterval);
+isRunning = false;
+overallSessionTime = 0;
+updateUserInterface();
+alert("Character verification processing cycle complete. Rest securely.");
+resetAuditEngine();
+}
+}
+}, 1000);
+}
+}
+function resetAuditEngine() {
+currentPhaseIndex = 0;
+timeRemaining = phases[0].duration;
+overallSessionTime = 600;
+isRunning = false;
+clearInterval(timerInterval);
+updateUserInterface();
+}
+// Initial Dashboard Paint Execution
+updateUserInterface();
+</script>
+</body>
+</html>
